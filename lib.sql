@@ -15,5 +15,50 @@
 CREATE DATABASE _;
 USE _;
 
+
+-- Example:
+-- SELECT _.quote_name('my`table');
+DROP FUNCTION IF EXISTS quote_name;
+CREATE FUNCTION quote_name(p_name VARCHAR(64))
+    RETURNS TEXT
+    CONTAINS SQL
+    COMMENT 'Return specified name quoted with backticks and escaped'
+BEGIN
+    RETURN CONCAT('`', REPLACE(p_name, '`', '``'), '`');
+END;
+
+-- Example:
+-- SELECT _.quote_name2('my`db', 'my`table');
+DROP FUNCTION IF EXISTS quote_name2;
+CREATE FUNCTION quote_name2(p_name1 VARCHAR(64), p_name2 VARCHAR(64))
+    RETURNS TEXT
+    CONTAINS SQL
+    COMMENT 'Return specified FQN quoted with backticks and escaped'
+BEGIN
+    RETURN CONCAT(
+        '`', REPLACE(p_name1, '`', '``'), '`',
+        '.',
+        '`', REPLACE(p_name2, '`', '``'), '`'
+    );
+END;
+
+-- Example:
+-- SELECT _.quote_name3('my`db', 'my`table', 'my`column');
+DROP FUNCTION IF EXISTS quote_name3;
+CREATE FUNCTION quote_name3(p_name1 VARCHAR(64), p_name2 VARCHAR(64), p_name3 VARCHAR(64))
+    RETURNS TEXT
+    CONTAINS SQL
+    COMMENT 'Return specified FQN quoted with backticks and escaped'
+BEGIN
+    RETURN CONCAT(
+        '`', REPLACE(p_name1, '`', '``'), '`',
+        '.',
+        '`', REPLACE(p_name2, '`', '``'), '`'
+        '.',
+        '`', REPLACE(p_name3, '`', '``'), '`'
+    );
+END;
+
+
 # release MDL, if any
 COMMIT;
