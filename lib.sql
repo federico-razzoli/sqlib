@@ -59,6 +59,21 @@ BEGIN
     );
 END;
 
+-- Example:
+-- SELECT quote_account('u`ser', 'h`ost');
+DROP FUNCTION IF EXISTS quote_account;
+CREATE FUNCTION quote_account(p_user VARCHAR(32), p_host VARCHAR(60))
+    RETURNS TEXT
+    CONTAINS SQL
+    COMMENT 'Return valid syntax for specified account'
+BEGIN
+    RETURN CONCAT(
+        '`', REPLACE(p_user, '`', '``'), '`',
+        '@',
+        '`', REPLACE(p_host, '`', '``'), '`'
+    );
+END;
+
 
 # release MDL, if any
 COMMIT;
