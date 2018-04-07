@@ -60,7 +60,7 @@ BEGIN
 END;
 
 -- Example:
--- SELECT quote_account('u`ser', 'h`ost');
+-- SELECT _.quote_account('u`ser', 'h`ost');
 DROP FUNCTION IF EXISTS quote_account;
 CREATE FUNCTION quote_account(p_user VARCHAR(32), p_host VARCHAR(60))
     RETURNS TEXT
