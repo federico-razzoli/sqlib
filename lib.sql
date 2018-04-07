@@ -74,6 +74,20 @@ BEGIN
     );
 END;
 
+-- Example:
+-- SELECT _.escape_like('_90%_');
+DROP FUNCTION IF EXISTS escape_like;
+CREATE FUNCTION escape_like(p_like TEXT)
+    RETURNS TEXT
+    CONTAINS SQL
+    COMMENT 'Return input string with LIKE special characters escaped'
+BEGIN
+    RETURN REPLACE(
+        REPLACE(p_like, '%', '\%'),
+        '_', '\_'
+    );
+END;
+
 
 # release MDL, if any
 COMMIT;
