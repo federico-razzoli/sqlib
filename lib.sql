@@ -88,6 +88,28 @@ BEGIN
     );
 END;
 
+-- Example:
+-- CALL _.is_valid_name('order', @is_valid);
+-- SELECT @is_valid;
+DROP PROCEDURE IF EXISTS is_valid_name;
+CREATE PROCEDURE is_valid_name(IN in_name TEXT, OUT out_is_valid BOOL)
+    CONTAINS SQL
+    COMMENT 'Set `out_is_valid` to TRUE if id is valid name, else FALSE. The check is done by trying to use it as an alias in a prepared statement.'
+BEGIN
+    DECLARE EXIT HANDLER
+        FOR 1064
+    BEGIN
+        SET out_is_valid = FALSE;
+    END;
+ 
+    SET @sql_query = CONCAT('DO (SELECT 0 AS ', in_name, ');');
+    PREPARE stmt FROM @sql_query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+ 
+    SET `out_is_valid` = TRUE;
+END;
+
 
 # release MDL, if any
 COMMIT;
