@@ -110,17 +110,6 @@ BEGIN
     SET `out_is_valid` = TRUE;
 END;
 
--- Example:
--- SELECT is_empty('');
-DROP FUNCTION IF EXISTS is_empty;
-CREATE FUNCTION is_empty(p_value TEXT)
-    RETURNS TEXT
-    CONTAINS SQL
-    COMMENT 'Return 0 if p_value is 0 or empty string, NULL if it''s NULL. For any other value, including zero date, return 1'
-BEGIN
-    RETURN p_value = '';
-END;
-
 
 # release MDL, if any
 COMMIT;
