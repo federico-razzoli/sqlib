@@ -16,6 +16,15 @@ CREATE DATABASE _;
 USE _;
 
 
+/*
+    LANGUAGE EXTENSIONS
+    ===================
+
+    Routines that make development of other routines easier,
+    alleviating the need to write verbose or ugly code
+    to accomplish reasonably common tasks.
+*/
+
 -- Example:
 -- SELECT _.quote_name('my`table');
 DROP FUNCTION IF EXISTS quote_name;
