@@ -151,7 +151,7 @@ END;
 -- SELECT _.database_exists('test');
 DROP FUNCTION IF EXISTS database_exists;
 CREATE FUNCTION database_exists(p_name VARCHAR(64))
-    RETURNS TEXT
+    RETURNS BOOL
     CONTAINS SQL
     COMMENT 'Return if specified database exists'
 BEGIN
