@@ -140,5 +140,28 @@ BEGIN
 END;
 
 
+/*
+    METADATA
+    ========
+
+    Various information about metadata.
+*/
+
+-- Example:
+-- SELECT _.database_exists('test');
+DROP FUNCTION IF EXISTS database_exists;
+CREATE FUNCTION database_exists(p_name VARCHAR(64))
+    RETURNS TEXT
+    CONTAINS SQL
+    COMMENT 'Return if specified database exists'
+BEGIN
+    RETURN EXISTS (
+        SELECT SCHEMA_NAME
+            FROM information_schema.SCHEMATA
+            WHERE SCHEMA_NAME = p_name
+    );
+END;
+
+
 # release MDL, if any
 COMMIT;
