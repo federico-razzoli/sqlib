@@ -46,6 +46,31 @@ END;
 */
 
 -- Example:
+-- CALL _.raise_exception(32000, 'Test error');
+DROP PROCEDURE IF EXISTS raise_exception;
+CREATE PROCEDURE raise_exception(IN in_code SMALLINT UNSIGNED, IN in_message TEXT)
+    CONTAINS SQL
+    COMMENT 'SIGNAL a custom error with SQLSTATE ''45000'''
+BEGIN
+    SIGNAL SQLSTATE '45000' SET
+        MYSQL_ERRNO = in_code,
+        MESSAGE_TEXT = in_message;
+END;
+
+-- Example:
+-- CALL _.raise_warning(32000, 'Test warning');
+-- SHOW WARNINGS;
+DROP PROCEDURE IF EXISTS raise_warning;
+CREATE PROCEDURE raise_warning(IN in_code SMALLINT UNSIGNED, IN in_message TEXT)
+    CONTAINS SQL
+    COMMENT 'SIGNAL a custom warning with SQLSTATE ''01000'''
+BEGIN
+    SIGNAL SQLSTATE '01000' SET
+        MYSQL_ERRNO = in_code,
+        MESSAGE_TEXT = in_message;
+END;
+
+-- Example:
 -- SELECT _.quote_name('my`table');
 DROP FUNCTION IF EXISTS quote_name;
 CREATE FUNCTION quote_name(p_name VARCHAR(64))
