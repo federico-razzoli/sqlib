@@ -149,9 +149,7 @@ BEGIN
     SET @_run_sql_sql0 = in_sql;
     PREPARE _stmt_run_sql_sql0 FROM @_run_sql_sql0;
     
-    BEGIN
-        EXECUTE _stmt_run_sql_sql0;
-    END;
+    EXECUTE _stmt_run_sql_sql0;
 
     DEALLOCATE PREPARE _stmt_run_sql_sql0;
     SET @_run_sql_sql0 = NULL;
@@ -167,9 +165,7 @@ BEGIN
     SET @_run_sql_sql1 = in_sql;
     PREPARE _stmt_run_sql_sql1 FROM @_run_sql_sql1;
     
-    BEGIN
-        EXECUTE _stmt_run_sql_sql1;
-    END;
+    EXECUTE _stmt_run_sql_sql1;
 
     DEALLOCATE PREPARE _stmt_run_sql_sql1;
     SET @_run_sql_sql1 = NULL;
@@ -185,9 +181,7 @@ BEGIN
     SET @_run_sql_sql2 = in_sql;
     PREPARE _stmt_run_sql_sql2 FROM @_run_sql_sql2;
     
-    BEGIN
-        EXECUTE _stmt_run_sql_sql2;
-    END;
+    EXECUTE _stmt_run_sql_sql2;
 
     DEALLOCATE PREPARE _stmt_run_sql_sql2;
     SET @_run_sql_sql2 = NULL;
@@ -203,9 +197,7 @@ BEGIN
     SET @_run_sql_sql3 = in_sql;
     PREPARE _stmt_run_sql_sql3 FROM @_run_sql_sql3;
     
-    BEGIN
-        EXECUTE _stmt_run_sql_sql3;
-    END;
+    EXECUTE _stmt_run_sql_sql3;
 
     DEALLOCATE PREPARE _stmt_run_sql_sql3;
     SET @_run_sql_sql3 = NULL;
@@ -221,9 +213,7 @@ BEGIN
     SET @_run_sql_sql4 = in_sql;
     PREPARE _stmt_run_sql_sql4 FROM @_run_sql_sql4;
     
-    BEGIN
-        EXECUTE _stmt_run_sql_sql4;
-    END;
+    EXECUTE _stmt_run_sql_sql4;
 
     DEALLOCATE PREPARE _stmt_run_sql_sql4;
     SET @_run_sql_sql4 = NULL;
@@ -323,7 +313,6 @@ BEGIN
             WHERE id = next_id;
     END;
 END;
-CALL _.run_sql('SELECT 1;');
 
 
 /*
