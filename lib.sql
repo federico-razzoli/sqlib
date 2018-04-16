@@ -139,6 +139,55 @@ BEGIN
     SET `out_is_valid` = TRUE;
 END;
 
+-- Example:
+-- CALL _.run_sql('SELECT 1;');
+DROP PROCEDURE IF EXISTS run_sql;
+CREATE PROCEDURE run_sql(IN in_sql TEXT)
+    CONTAINS SQL
+    COMMENT 'Run specified SQL query. Supports max 3 levels of recursivity'
+BEGIN
+    SET @_run_sql_sql0 = in_sql;
+    PREPARE _stmt_run_sql_sql0 FROM @_run_sql_sql0;
+    
+    BEGIN
+        DECLARE EXIT HANDLER
+            FOR 1456
+        BEGIN
+            SET @_run_sql_sql1 = in_sql;
+            PREPARE _stmt_run_sql_sql1 FROM @_run_sql_sql1;
+            
+            BEGIN
+                DECLARE EXIT HANDLER
+                    FOR 1456
+                BEGIN
+                    SET @_run_sql_sql2 = in_sql;
+                    PREPARE _stmt_run_sql_sql2 FROM @_run_sql_sql2;
+                    
+                    BEGIN
+                        DECLARE EXIT HANDLER
+                            FOR 1456
+                        BEGIN
+                            
+                        END;
+                        EXECUTE _stmt_run_sql_sql2;
+                    END;
+
+                    DEALLOCATE PREPARE _stmt_run_sql_sql2;
+                    SET @_run_sql_sql2 = NULL;
+                END;
+                EXECUTE _stmt_run_sql_sql1;
+            END;
+
+            DEALLOCATE PREPARE _stmt_run_sql_sql1;
+            SET @_run_sql_sql1 = NULL;
+        END;
+        EXECUTE _stmt_run_sql_sql0;
+    END;
+
+    DEALLOCATE PREPARE _stmt_run_sql_sql0;
+    SET @_run_sql_sql0 = NULL;
+END;
+
 
 /*
     METADATA
