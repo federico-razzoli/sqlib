@@ -17,6 +17,26 @@ USE _;
 
 
 /*
+    SYNONYMS
+    ========
+
+    Synonyms for built-in functions whose names are not easy to remember.
+    Always keep this section first.
+*/
+
+-- Example:
+-- SELECT _.today();
+DROP FUNCTION IF EXISTS today;
+CREATE FUNCTION today()
+    RETURNS DATE
+    CONTAINS SQL
+    COMMENT 'Synonym for CURDATE()'
+BEGIN
+    RETURN CURDATE();
+END;
+
+
+/*
     LANGUAGE EXTENSIONS
     ===================
 
