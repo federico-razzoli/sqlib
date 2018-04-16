@@ -229,6 +229,102 @@ BEGIN
     SET @_run_sql_sql4 = NULL;
 END;
 
+-- Example:
+-- CALL _.run_sql('SELECT 1;');
+DROP PROCEDURE IF EXISTS run_sql;
+CREATE PROCEDURE run_sql(IN in_sql TEXT)
+    CONTAINS SQL
+    COMMENT 'Run specified SQL query. Support 5 levels of recursion'
+BEGIN
+    -- Normally, prepared statements cannot be called recursively in a dynamic
+    -- way, because the following must have unique names:
+    --   - Prepared statement name
+    --   - User variable containing the query
+    -- As a workaround, we provide several run_sql*() procedures,
+    -- each using a different suffix for these elements.
+    -- As a consequence, this generic run_sql() must be able to find
+    -- the lowest prefix currently not in use.
+    -- For this purpose, we create a temporary tables with the id's
+    -- and a boolean flag which indicates if they are currently in use.
+    -- The number of max concurrent prepared statements is still
+    -- an arbitrary limit.
+    BEGIN
+        DECLARE error_message TEXT DEFAULT NULL;
+
+        -- If the table exists, assume it is already populated.
+        DECLARE CONTINUE HANDLER
+            FOR 1146
+        BEGIN END;
+
+        CREATE TEMPORARY TABLE IF NOT EXISTS _.prepared_statement_namespaces (
+            id TINYINT UNSIGNED NOT NULL,
+            in_use BOOL NOT NULL DEFAULT FALSE,
+            PRIMARY KEY (id)
+        );
+        INSERT IGNORE INTO _.prepared_statement_namespaces (id) VALUES (0), (1), (2), (3), (4);
+    END;
+
+    -- Now that we are sure that we have the table
+    -- prepared_statement_namespaces we need to:
+    --   - Check if a suffix is available, if not exit with an error;
+    --   - Lock the suffix;
+    --   - Run the SQL statement;
+    --   - Unlock the suffix.
+    BEGIN
+        DECLARE next_id TINYINT UNSIGNED DEFAULT NULL;
+        DECLARE error_message TEXT DEFAULT NULL;
+
+        SET next_id := (
+            SELECT MIN(id)
+                FROM _.prepared_statement_namespaces
+                WHERE in_use = 0
+        );
+
+        IF next_id IS NULL THEN
+            SET error_message := CONCAT_WS('',
+                'No namespace available for new prepared statement: ',
+                in_sql
+            );
+            SIGNAL SQLSTATE '45000' SET
+                MESSAGE_TEXT = error_message;
+        END IF;
+
+        -- lock
+        UPDATE _.prepared_statement_namespaces
+            SET in_use = TRUE
+            WHERE id = next_id;
+
+        -- To run the ps with the proper suffix we rely on the relevant procedure.
+        -- We cannot do this step dynamically for the reasons stated above.
+        -- We keep the lock/unlock logic here to have it in a centralized place.
+        -- This means that the used should not call specific functions directly,
+        -- or she shouldn't rely on this procedure.
+        CASE next_id
+            WHEN 0 THEN BEGIN
+                CALL _.run_sql0(in_sql);
+            END;
+            WHEN 1 THEN BEGIN
+                CALL _.run_sql1(in_sql);
+            END;
+            WHEN 2 THEN BEGIN
+                CALL _.run_sql2(in_sql);
+            END;
+            WHEN 3 THEN BEGIN
+                CALL _.run_sql3(in_sql);
+            END;
+            WHEN 4 THEN BEGIN
+                CALL _.run_sql4(in_sql);
+            END;
+        END CASE;
+
+        -- release lock
+        UPDATE _.prepared_statement_namespaces
+            SET in_use = FALSE
+            WHERE id = next_id;
+    END;
+END;
+CALL _.run_sql('SELECT 1;');
+
 
 /*
     METADATA
