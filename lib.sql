@@ -140,52 +140,93 @@ BEGIN
 END;
 
 -- Example:
--- CALL _.run_sql('SELECT 1;');
-DROP PROCEDURE IF EXISTS run_sql;
-CREATE PROCEDURE run_sql(IN in_sql TEXT)
+-- CALL _.run_sql0('SELECT 1;');
+DROP PROCEDURE IF EXISTS run_sql0;
+CREATE PROCEDURE run_sql0(IN in_sql TEXT)
     CONTAINS SQL
-    COMMENT 'Run specified SQL query. Supports max 3 levels of recursivity'
+    COMMENT 'Run specified SQL query. Cannot be called recursively'
 BEGIN
     SET @_run_sql_sql0 = in_sql;
     PREPARE _stmt_run_sql_sql0 FROM @_run_sql_sql0;
     
     BEGIN
-        DECLARE EXIT HANDLER
-            FOR 1456
-        BEGIN
-            SET @_run_sql_sql1 = in_sql;
-            PREPARE _stmt_run_sql_sql1 FROM @_run_sql_sql1;
-            
-            BEGIN
-                DECLARE EXIT HANDLER
-                    FOR 1456
-                BEGIN
-                    SET @_run_sql_sql2 = in_sql;
-                    PREPARE _stmt_run_sql_sql2 FROM @_run_sql_sql2;
-                    
-                    BEGIN
-                        DECLARE EXIT HANDLER
-                            FOR 1456
-                        BEGIN
-                            
-                        END;
-                        EXECUTE _stmt_run_sql_sql2;
-                    END;
-
-                    DEALLOCATE PREPARE _stmt_run_sql_sql2;
-                    SET @_run_sql_sql2 = NULL;
-                END;
-                EXECUTE _stmt_run_sql_sql1;
-            END;
-
-            DEALLOCATE PREPARE _stmt_run_sql_sql1;
-            SET @_run_sql_sql1 = NULL;
-        END;
         EXECUTE _stmt_run_sql_sql0;
     END;
 
     DEALLOCATE PREPARE _stmt_run_sql_sql0;
     SET @_run_sql_sql0 = NULL;
+END;
+
+-- Example:
+-- CALL _.run_sql1('SELECT 1;');
+DROP PROCEDURE IF EXISTS run_sql1;
+CREATE PROCEDURE run_sql1(IN in_sql TEXT)
+    CONTAINS SQL
+    COMMENT 'Run specified SQL query. Cannot be called recursively'
+BEGIN
+    SET @_run_sql_sql1 = in_sql;
+    PREPARE _stmt_run_sql_sql1 FROM @_run_sql_sql1;
+    
+    BEGIN
+        EXECUTE _stmt_run_sql_sql1;
+    END;
+
+    DEALLOCATE PREPARE _stmt_run_sql_sql1;
+    SET @_run_sql_sql1 = NULL;
+END;
+
+-- Example:
+-- CALL _.run_sql2('SELECT 1;');
+DROP PROCEDURE IF EXISTS run_sql2;
+CREATE PROCEDURE run_sql2(IN in_sql TEXT)
+    CONTAINS SQL
+    COMMENT 'Run specified SQL query. Cannot be called recursively'
+BEGIN
+    SET @_run_sql_sql2 = in_sql;
+    PREPARE _stmt_run_sql_sql2 FROM @_run_sql_sql2;
+    
+    BEGIN
+        EXECUTE _stmt_run_sql_sql2;
+    END;
+
+    DEALLOCATE PREPARE _stmt_run_sql_sql2;
+    SET @_run_sql_sql2 = NULL;
+END;
+
+-- Example:
+-- CALL _.run_sql3('SELECT 1;');
+DROP PROCEDURE IF EXISTS run_sql3;
+CREATE PROCEDURE run_sql3(IN in_sql TEXT)
+    CONTAINS SQL
+    COMMENT 'Run specified SQL query. Cannot be called recursively'
+BEGIN
+    SET @_run_sql_sql3 = in_sql;
+    PREPARE _stmt_run_sql_sql3 FROM @_run_sql_sql3;
+    
+    BEGIN
+        EXECUTE _stmt_run_sql_sql3;
+    END;
+
+    DEALLOCATE PREPARE _stmt_run_sql_sql3;
+    SET @_run_sql_sql3 = NULL;
+END;
+
+-- Example:
+-- CALL _.run_sql4('SELECT 1;');
+DROP PROCEDURE IF EXISTS run_sql4;
+CREATE PROCEDURE run_sql4(IN in_sql TEXT)
+    CONTAINS SQL
+    COMMENT 'Run specified SQL query. Cannot be called recursively'
+BEGIN
+    SET @_run_sql_sql4 = in_sql;
+    PREPARE _stmt_run_sql_sql4 FROM @_run_sql_sql4;
+    
+    BEGIN
+        EXECUTE _stmt_run_sql_sql4;
+    END;
+
+    DEALLOCATE PREPARE _stmt_run_sql_sql4;
+    SET @_run_sql_sql4 = NULL;
 END;
 
 
