@@ -143,7 +143,7 @@ END;
 -- CALL _.run_sql0('SELECT 1;');
 DROP PROCEDURE IF EXISTS run_sql0;
 CREATE PROCEDURE run_sql0(IN in_sql TEXT)
-    WRITES SQL DATA
+    MODIFIES SQL DATA
     COMMENT 'Run specified SQL query. Cannot be called recursively'
 BEGIN
     SET @_run_sql_sql0 = in_sql;
@@ -159,7 +159,7 @@ END;
 -- CALL _.run_sql1('SELECT 1;');
 DROP PROCEDURE IF EXISTS run_sql1;
 CREATE PROCEDURE run_sql1(IN in_sql TEXT)
-    WRITES SQL DATA
+    MODIFIES SQL DATA
     COMMENT 'Run specified SQL query. Cannot be called recursively'
 BEGIN
     SET @_run_sql_sql1 = in_sql;
@@ -175,7 +175,7 @@ END;
 -- CALL _.run_sql2('SELECT 1;');
 DROP PROCEDURE IF EXISTS run_sql2;
 CREATE PROCEDURE run_sql2(IN in_sql TEXT)
-    WRITES SQL DATA
+    MODIFIES SQL DATA
     COMMENT 'Run specified SQL query. Cannot be called recursively'
 BEGIN
     SET @_run_sql_sql2 = in_sql;
@@ -191,7 +191,7 @@ END;
 -- CALL _.run_sql3('SELECT 1;');
 DROP PROCEDURE IF EXISTS run_sql3;
 CREATE PROCEDURE run_sql3(IN in_sql TEXT)
-    WRITES SQL DATA
+    MODIFIES SQL DATA
     COMMENT 'Run specified SQL query. Cannot be called recursively'
 BEGIN
     SET @_run_sql_sql3 = in_sql;
@@ -207,7 +207,7 @@ END;
 -- CALL _.run_sql4('SELECT 1;');
 DROP PROCEDURE IF EXISTS run_sql4;
 CREATE PROCEDURE run_sql4(IN in_sql TEXT)
-    WRITES SQL DATA
+    MODIFIES SQL DATA
     COMMENT 'Run specified SQL query. Cannot be called recursively'
 BEGIN
     SET @_run_sql_sql4 = in_sql;
@@ -223,7 +223,7 @@ END;
 -- CALL _.run_sql('SELECT 1;');
 DROP PROCEDURE IF EXISTS run_sql;
 CREATE PROCEDURE run_sql(IN in_sql TEXT)
-    WRITES SQL DATA
+    MODIFIES SQL DATA
     COMMENT 'Run specified SQL query. Support 5 levels of recursion'
 BEGIN
     -- Normally, prepared statements cannot be called recursively in a dynamic
