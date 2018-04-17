@@ -12,6 +12,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+DROP DATABASE IF EXISTS _;
 CREATE DATABASE _;
 USE _;
 
