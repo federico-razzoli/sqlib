@@ -384,6 +384,17 @@ BEGIN
     );
 END;
 
+-- Example:
+-- SELECT _.schema_exists('test');
+DROP FUNCTION IF EXISTS schema_exists;
+CREATE FUNCTION schema_exists(p_name VARCHAR(64))
+    RETURNS BOOL
+    READS SQL DATA
+    COMMENT 'Synonym for database_exists()'
+BEGIN
+    RETURN database_exists(p_name);
+END;
+
 
 # release MDL, if any
 COMMIT;
