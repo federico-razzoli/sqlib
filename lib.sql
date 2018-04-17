@@ -435,6 +435,39 @@ BEGIN
     END IF;
 END;
 
+-- Example:
+-- CALL _.column_exists(@r, 'mysql', 'user', 'host');
+-- SELECT @r;
+DROP PROCEDURE IF EXISTS column_exists;
+CREATE PROCEDURE column_exists(
+        OUT out_ret BOOL,
+        IN in_schema VARCHAR(64),
+        IN in_table VARCHAR(64),
+        IN in_column VARCHAR(64)
+    )
+    READS SQL DATA
+    COMMENT 'Return wether database.table exists'
+BEGIN
+    DECLARE v_sql TEXT DEFAULT NULL;
+    -- if the table (1146) / column (1054) does not exist, a query on it will return an error
+    -- that we will handle, returning FALSE
+    DECLARE EXIT HANDLER
+        FOR 1146, 1054
+    BEGIN
+        SET out_ret := FALSE;
+    END;
+
+    IF in_schema IS NULL OR in_table IS NULL OR in_column IS NULL THEN
+        SET out_ret :=  NULL;
+    ELSE
+        SET v_sql := CONCAT(
+            'DO (SELECT ', QUOTE_NAME(in_column), ' FROM ', QUOTE_NAME2(in_schema, in_table), ' LIMIT 1);'
+        );
+        CALL run_sql(v_sql);
+        SET out_ret :=  TRUE;
+    END IF;
+END;
+
 
 # release MDL, if any
 COMMIT;
