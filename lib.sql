@@ -37,6 +37,29 @@ END;
 
 
 /*
+    CUSTOM EXCEPTIONS
+    =================
+
+    `exception_dictionary` table serves as a documentation of all custom
+    exceptions used by SQLib.
+*/
+
+CREATE TABLE exception_dictionary (
+    `sqlstate` CHAR(5) NOT NULL,
+    `code` SMALLINT UNSIGNED NOT NULL,
+    `message` TEXT NOT NULL,
+    PRIMARY KEY (`code`)
+)
+    ENGINE InnoDB,
+    COMMENT 'Custom exceptions used by SQLib';
+
+INSERT INTO exception_dictionary
+    (`sqlstate`, `code`, `message`)
+    VALUES
+    ('45000', 32001, 'No namespace available for prepared statement');
+
+
+/*
     LANGUAGE EXTENSIONS
     ===================
 
@@ -297,11 +320,10 @@ BEGIN
 
         IF next_id IS NULL THEN
             SET error_message := CONCAT_WS('',
-                'No namespace available for new prepared statement: ',
+                'No namespace available for prepared statement: ',
                 in_sql
             );
-            SIGNAL SQLSTATE '45000' SET
-                MESSAGE_TEXT = error_message;
+            CALL raise_exception(32001, error_message);
         END IF;
 
         -- lock
