@@ -374,7 +374,7 @@ END;
 DROP FUNCTION IF EXISTS database_exists;
 CREATE FUNCTION database_exists(p_name VARCHAR(64))
     RETURNS BOOL
-    CONTAINS SQL
+    READS SQL DATA
     COMMENT 'Return if specified database exists'
 BEGIN
     RETURN EXISTS (
