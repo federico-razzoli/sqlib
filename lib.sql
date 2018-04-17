@@ -385,6 +385,9 @@ CREATE FUNCTION database_exists(p_name VARCHAR(64))
     READS SQL DATA
     COMMENT 'Return if specified database exists'
 BEGIN
+    IF p_name IS NULL THEN
+        RETURN NULL;
+    END IF;
     RETURN EXISTS (
         SELECT SCHEMA_NAME
             FROM information_schema.SCHEMATA
