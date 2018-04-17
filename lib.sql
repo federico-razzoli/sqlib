@@ -408,10 +408,10 @@ BEGIN
 END;
 
 -- Example:
--- CALL _.table_exists(@r, 'mysql', 'user');
+-- CALL _.entity_exists(@r, 'mysql', 'user');
 -- SELECT @r;
-DROP PROCEDURE IF EXISTS table_exists;
-CREATE PROCEDURE table_exists(OUT out_ret BOOL, IN in_schema VARCHAR(64), IN in_table VARCHAR(64))
+DROP PROCEDURE IF EXISTS entity_exists;
+CREATE PROCEDURE entity_exists(OUT out_ret BOOL, IN in_schema VARCHAR(64), IN in_table VARCHAR(64))
     READS SQL DATA
     COMMENT 'Return wether database.table exists'
 BEGIN
