@@ -420,11 +420,16 @@ BEGIN
     BEGIN
         SET out_ret := FALSE;
     END;
-    SET v_sql := CONCAT(
-        'DO (SELECT 1 FROM ', QUOTE_NAME2(in_schema, in_table), ' LIMIT 1);'
-    );
-    CALL run_sql(v_sql);
-    SET out_ret :=  TRUE;
+
+    IF in_schema IS NULL OR in_table IS NULL THEN
+        SET out_ret :=  NULL;
+    ELSE
+        SET v_sql := CONCAT(
+            'DO (SELECT 1 FROM ', QUOTE_NAME2(in_schema, in_table), ' LIMIT 1);'
+        );
+        CALL run_sql(v_sql);
+        SET out_ret :=  TRUE;
+    END IF;
 END;
 
 
