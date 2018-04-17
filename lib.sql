@@ -298,7 +298,7 @@ BEGIN
             id TINYINT UNSIGNED NOT NULL,
             in_use BOOL NOT NULL DEFAULT FALSE,
             PRIMARY KEY (id)
-        );
+        ) ENGINE MEMORY;
         INSERT IGNORE INTO _.prepared_statement_namespaces (id) VALUES (0), (1), (2), (3), (4);
     END;
 
