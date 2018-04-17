@@ -404,6 +404,29 @@ BEGIN
     RETURN database_exists(p_name);
 END;
 
+-- Example:
+-- CALL _.table_exists(@r, 'mysql', 'user');
+-- SELECT @r;
+DROP PROCEDURE IF EXISTS table_exists;
+CREATE PROCEDURE table_exists(OUT out_ret BOOL, IN in_schema VARCHAR(64), IN in_table VARCHAR(64))
+    READS SQL DATA
+    COMMENT 'Return wether database.table exists'
+BEGIN
+    DECLARE v_sql TEXT DEFAULT NULL;
+    -- if the table does not exist, a query on it will return an error
+    -- that we will handle, returning FALSE
+    DECLARE EXIT HANDLER
+        FOR 1146
+    BEGIN
+        SET out_ret := FALSE;
+    END;
+    SET v_sql := CONCAT(
+        'DO (SELECT 1 FROM ', QUOTE_NAME2(in_schema, in_table), ' LIMIT 1);'
+    );
+    CALL run_sql(v_sql);
+    SET out_ret :=  TRUE;
+END;
+
 
 # release MDL, if any
 COMMIT;
