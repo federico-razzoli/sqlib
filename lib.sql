@@ -30,6 +30,7 @@ USE _;
 DROP FUNCTION IF EXISTS today;
 CREATE FUNCTION today()
     RETURNS DATE
+    NOT DETERMINISTIC
     CONTAINS SQL
     COMMENT 'Synonym for CURDATE()'
 BEGIN
@@ -99,6 +100,7 @@ END;
 DROP FUNCTION IF EXISTS quote_name;
 CREATE FUNCTION quote_name(p_name VARCHAR(64))
     RETURNS TEXT
+    DETERMINISTIC
     CONTAINS SQL
     COMMENT 'Return specified name quoted with backticks and escaped'
 BEGIN
@@ -110,6 +112,7 @@ END;
 DROP FUNCTION IF EXISTS quote_name2;
 CREATE FUNCTION quote_name2(p_name1 VARCHAR(64), p_name2 VARCHAR(64))
     RETURNS TEXT
+    DETERMINISTIC
     CONTAINS SQL
     COMMENT 'Return specified FQN quoted with backticks and escaped'
 BEGIN
@@ -125,6 +128,7 @@ END;
 DROP FUNCTION IF EXISTS quote_name3;
 CREATE FUNCTION quote_name3(p_name1 VARCHAR(64), p_name2 VARCHAR(64), p_name3 VARCHAR(64))
     RETURNS TEXT
+    DETERMINISTIC
     CONTAINS SQL
     COMMENT 'Return specified FQN quoted with backticks and escaped'
 BEGIN
@@ -142,6 +146,7 @@ END;
 DROP FUNCTION IF EXISTS quote_account;
 CREATE FUNCTION quote_account(p_user VARCHAR(32), p_host VARCHAR(60))
     RETURNS TEXT
+    DETERMINISTIC
     CONTAINS SQL
     COMMENT 'Return valid syntax for specified account'
 BEGIN
@@ -157,6 +162,7 @@ END;
 DROP FUNCTION IF EXISTS escape_like;
 CREATE FUNCTION escape_like(p_like TEXT)
     RETURNS TEXT
+    DETERMINISTIC
     CONTAINS SQL
     COMMENT 'Return input string with LIKE special characters escaped'
 BEGIN
@@ -375,6 +381,7 @@ END;
 DROP FUNCTION IF EXISTS database_exists;
 CREATE FUNCTION database_exists(p_name VARCHAR(64))
     RETURNS BOOL
+    NOT DETERMINISTIC
     READS SQL DATA
     COMMENT 'Return if specified database exists'
 BEGIN
@@ -390,6 +397,7 @@ END;
 DROP FUNCTION IF EXISTS schema_exists;
 CREATE FUNCTION schema_exists(p_name VARCHAR(64))
     RETURNS BOOL
+    NOT DETERMINISTIC
     READS SQL DATA
     COMMENT 'Synonym for database_exists()'
 BEGIN
