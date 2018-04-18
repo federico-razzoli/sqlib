@@ -470,10 +470,10 @@ END;
 
 
 /*
-    INFORMATION
-    ===========
+    TABLES INFORMATION
+    ==================
 
-    Views providing metainformation.
+    Metainformation about tables.
 */
 
 CREATE OR REPLACE VIEW TABLES_BY_DATABASE AS
