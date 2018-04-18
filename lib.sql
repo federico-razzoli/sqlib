@@ -531,6 +531,25 @@ CREATE OR REPLACE VIEW UNUSED_ENGINES AS
         ORDER BY ENGINE
 ;
 
+CREATE OR REPLACE VIEW EMPTY_DATABASES AS
+    SELECT SCHEMA_NAME
+        FROM information_schema.SCHEMATA
+        WHERE
+            -- an empty schema is a schema which contains
+            -- no tables, no routines, no events
+            -- and implicitly, no triggers
+            SCHEMA_NAME NOT IN (
+                SELECT TABLE_SCHEMA FROM information_schema.TABLES
+            )
+            AND SCHEMA_NAME NOT IN (
+                SELECT ROUTINE_SCHEMA FROM information_schema.ROUTINES
+            )
+            AND SCHEMA_NAME NOT IN (
+                SELECT EVENT_SCHEMA FROM information_schema.EVENTS
+            )
+        ORDER BY SCHEMA_NAME
+;
+
 
 # release MDL, if any
 COMMIT;
