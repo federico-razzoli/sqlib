@@ -551,5 +551,28 @@ CREATE OR REPLACE VIEW EMPTY_DATABASES AS
 ;
 
 
+/*
+    INNODB INFORMATION
+    ==================
+
+    Metainformation about InnoDB tables.
+*/
+
+CREATE OR REPLACE VIEW INNODB_COMPRESSED_TABLES_BY_DATABASE AS
+    SELECT
+            TABLE_SCHEMA AS `DATABASE`,
+            COUNT(*) AS TABLE_COUNT,
+            FORMAT(SUM(DATA_LENGTH)  / 1024 / 1024 / 1024, 2) AS DATA_LENGTH_GB,
+            FORMAT(SUM(INDEX_LENGTH) / 1024 / 1024 / 1024, 2) AS INDEX_LENGTH_GB,
+            FORMAT(SUM(DATA_FREE)    / 1024 / 1024 / 1024, 2) AS DATA_FREE_GB,
+            FORMAT(SUM(DATA_LENGTH + INDEX_LENGTH + DATA_FREE)
+                                     / 1024 / 1024 / 1024, 2) AS TOTAL_SIZE_GB
+        FROM information_schema.TABLES
+        WHERE ENGINE = 'InnoDB' AND ROW_FORMAT = 'Compressed'
+        GROUP BY TABLE_SCHEMA
+        ORDER BY TABLE_SCHEMA
+;
+
+
 # release MDL, if any
 COMMIT;
