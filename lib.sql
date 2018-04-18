@@ -469,5 +469,56 @@ BEGIN
 END;
 
 
+/*
+    INFORMATION
+    ===========
+
+    Views providing metainformation.
+*/
+
+CREATE OR REPLACE VIEW TABLES_BY_DATABASE AS
+    SELECT
+            TABLE_SCHEMA AS `DATABASE`,
+            COUNT(*) AS TABLE_COUNT,
+            FORMAT(SUM(DATA_LENGTH)  / 1024 / 1024 / 1024, 2) AS DATA_LENGTH_GB,
+            FORMAT(SUM(INDEX_LENGTH) / 1024 / 1024 / 1024, 2) AS INDEX_LENGTH_GB,
+            FORMAT(SUM(DATA_FREE)    / 1024 / 1024 / 1024, 2) AS DATA_FREE_GB,
+            FORMAT(SUM(DATA_LENGTH + INDEX_LENGTH + DATA_FREE)
+                                     / 1024 / 1024 / 1024, 2) AS TOTAL_SIZE_GB
+        FROM information_schema.TABLES
+        GROUP BY TABLE_SCHEMA
+        ORDER BY TABLE_SCHEMA
+;
+
+CREATE OR REPLACE VIEW TABLES_BY_ENGINE AS
+    SELECT
+            ENGINE,
+            COUNT(*) AS TABLE_COUNT,
+            FORMAT(SUM(DATA_LENGTH)  / 1024 / 1024 / 1024, 2) AS DATA_LENGTH_GB,
+            FORMAT(SUM(INDEX_LENGTH) / 1024 / 1024 / 1024, 2) AS INDEX_LENGTH_GB,
+            FORMAT(SUM(DATA_FREE)    / 1024 / 1024 / 1024, 2) AS DATA_FREE_GB,
+            FORMAT(SUM(DATA_LENGTH + INDEX_LENGTH + DATA_FREE)
+                                     / 1024 / 1024 / 1024, 2) AS TOTAL_SIZE_GB
+        FROM information_schema.TABLES
+        GROUP BY ENGINE
+        ORDER BY ENGINE
+;
+
+CREATE OR REPLACE VIEW TABLES_BY_DATABASE_AND_ENGINE AS
+    SELECT
+            TABLE_SCHEMA AS `DATABASE`,
+            ENGINE,
+            COUNT(*) AS TABLE_COUNT,
+            FORMAT(SUM(DATA_LENGTH)  / 1024 / 1024 / 1024, 2) AS DATA_LENGTH_GB,
+            FORMAT(SUM(INDEX_LENGTH) / 1024 / 1024 / 1024, 2) AS INDEX_LENGTH_GB,
+            FORMAT(SUM(DATA_FREE)    / 1024 / 1024 / 1024, 2) AS DATA_FREE_GB,
+            FORMAT(SUM(DATA_LENGTH + INDEX_LENGTH + DATA_FREE)
+                                     / 1024 / 1024 / 1024, 2) AS TOTAL_SIZE_GB
+        FROM information_schema.TABLES
+        GROUP BY TABLE_SCHEMA, ENGINE
+        ORDER BY TABLE_SCHEMA, ENGINE
+;
+
+
 # release MDL, if any
 COMMIT;
