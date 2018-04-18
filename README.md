@@ -12,3 +12,7 @@ mysql < lib.sql
 
 SQLib consists of a database called _ (underscore).
 If such database already exists, it is replaced by running lib.sql.
+
+## Additional documentation
+
+The file `docs/styleguide.md` contains code standards used in SQLib.
