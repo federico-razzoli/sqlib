@@ -467,6 +467,29 @@ BEGIN
     END IF;
 END;
 
+-- Example:
+-- CALL _.event_exists(@r, 'test', 'test_event');
+-- SELECT @r;
+DROP PROCEDURE IF EXISTS event_exists;
+CREATE PROCEDURE event_exists(
+        OUT out_ret BOOL,
+        IN in_schema VARCHAR(64),
+        IN in_event VARCHAR(64)
+    )
+    READS SQL DATA
+    COMMENT 'Return if specified event exists'
+BEGIN
+    IF in_schema IS NULL OR in_event IS NULL THEN
+        SET out_ret := NULL;
+    ELSE
+        SET out_ret := EXISTS (
+            SELECT EVENT_NAME
+                FROM information_schema.EVENTS
+                WHERE EVENT_SCHEMA = in_schema AND EVENT_NAME = in_event
+        );
+    END IF;
+END;
+
 
 /*
     TABLES INFORMATION
