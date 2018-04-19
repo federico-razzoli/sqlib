@@ -476,6 +476,22 @@ END;
     Metainformation about tables.
 */
 
+-- Example:
+-- SELECT _.get_dataset_size();
+DROP FUNCTION IF EXISTS get_dataset_size;
+CREATE FUNCTION get_dataset_size()
+    RETURNS BIGINT UNSIGNED
+    NOT DETERMINISTIC
+    READS SQL DATA
+    COMMENT 'Return the sum of all database sizes, in bytes'
+BEGIN
+    RETURN (
+        SELECT
+            SUM(DATA_LENGTH + INDEX_LENGTH + DATA_FREE)
+            FROM information_schema.TABLES
+    );
+END;
+
 CREATE OR REPLACE VIEW TABLES_BY_DATABASE AS
     SELECT
             TABLE_SCHEMA AS `DATABASE`,
