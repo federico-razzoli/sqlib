@@ -682,5 +682,62 @@ CREATE OR REPLACE VIEW TRIGGERS_BY_DATABASE_AND_EVENT_AND_TIMING AS
 ;
 
 
+/*
+    STORED PROGRAMS
+    ===============
+
+    Metainformation about triggers, routines and events as a whole.
+    Specific information about triggers, for example, are in another section.
+*/
+
+CREATE OR REPLACE VIEW PROGRAMS_BY_TYPE AS
+    (
+        SELECT
+                ROUTINE_TYPE AS PROGRAM_TYPE,
+                COUNT(*) AS PROGRAM_COUNT
+            FROM information_schema.ROUTINES
+            GROUP BY ROUTINE_TYPE
+    ) UNION ALL (
+        SELECT
+                'EVENT' AS PROGRAM_TYPE,
+                COUNT(*) AS PROGRAM_COUNT
+            FROM information_schema.EVENTS
+            -- for consistency with other views,
+            -- don't show a line if count = 0
+            HAVING COUNT(*) > 0
+    ) UNION ALL (
+        SELECT
+                'TRIGGER' AS PROGRAM_TYPE,
+                COUNT(*) AS PROGRAM_COUNT
+            FROM information_schema.TRIGGERS
+    ) ORDER BY PROGRAM_TYPE
+;
+
+CREATE OR REPLACE VIEW PROGRAMS_BY_DATABASE_AND_TYPE AS
+    (
+        SELECT
+                ROUTINE_SCHEMA AS `DATABASE`,
+                ROUTINE_TYPE AS PROGRAM_TYPE,
+                COUNT(*) AS PROGRAM_COUNT
+            FROM information_schema.ROUTINES
+            GROUP BY ROUTINE_SCHEMA, ROUTINE_TYPE
+    ) UNION ALL (
+        SELECT
+                EVENT_SCHEMA AS `DATABASE`,
+                'EVENT' AS PROGRAM_TYPE,
+                COUNT(*) AS PROGRAM_COUNT
+            FROM information_schema.EVENTS
+            GROUP BY EVENT_SCHEMA
+    ) UNION ALL (
+        SELECT
+                TRIGGER_SCHEMA AS `DATABASE`,
+                'TRIGGER' AS PROGRAM_TYPE,
+                COUNT(*) AS PROGRAM_COUNT
+            FROM information_schema.TRIGGERS
+            GROUP BY TRIGGER_SCHEMA
+    ) ORDER BY `DATABASE`, PROGRAM_TYPE
+;
+
+
 # release MDL, if any
 COMMIT;
