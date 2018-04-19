@@ -621,18 +621,6 @@ CREATE OR REPLACE VIEW INNODB_COMPRESSED_TABLES_BY_DATABASE AS
 
 -- Example:
 -- CALL _.show_working_set_size(5, 3);
--- +--------------+-------------+----------+
--- | occurrencies | page_number | bytes    |
--- +--------------+-------------+----------+
--- | 3            | 34          | 557056   |
--- | 4            | 57          | 933888   |
--- | 5            | 562         | 9207808  |
--- | <null>       | 687         | 11255808 |
--- +--------------+-------------+----------+
--- This means that 34 pages have been found 3 times,
--- 57 pages have been found 4 times,
--- and 5 pages have been found 562 times.
--- The total is 687 pages, with a size of 11255808 bytes.
 DROP PROCEDURE IF EXISTS show_working_set_size;
 CREATE PROCEDURE show_working_set_size(
         IN in_observations_count INT UNSIGNED,
@@ -641,8 +629,24 @@ CREATE PROCEDURE show_working_set_size(
     MODIFIES SQL DATA
     COMMENT
 'Show the size of buffer pool pages based on how many times they were observed.
-For example: 200 pages found 3 times with a total size of 3276800 bytes;
-500 pages found 4 times with a total size of 8192000; etc.
+For example:
++--------------+-------------+----------+
+| occurrencies | page_number | bytes    |
++--------------+-------------+----------+
+| 3            | 34          | 557056   |
+| 4            | 57          | 933888   |
+| 5            | 562         | 9207808  |
+| <null>       | 687         | 11255808 |
++--------------+-------------+----------+
+Means that:
+* 34 pages have been found 3 times,
+* 57 pages have been found 4 times,
+* 5 pages have been found 562 times.
+* The total is 687 pages, with a size of 11255808 bytes.
+The size of the total tells us how much memory we should dedicate
+to the buffer pool (if our observations are meaningful).
+But if we don''t have enough memory, we can look at the rows above
+to get an idea of how efficient a smaller size could be.
 To collect these statistics, information_schema.INNODB_BUFFER_PAGE
 is read the specified number of times, at the specified interval (in seconds).
 
