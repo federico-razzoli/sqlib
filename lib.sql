@@ -377,7 +377,7 @@ END;
 */
 
 -- Example:
--- CALL _.database_exists('test');
+-- CALL _.database_exists(@r, 'test');
 -- SELECT @r;
 DROP PROCEDURE IF EXISTS database_exists;
 CREATE PROCEDURE database_exists(OUT out_ret BOOL, IN in_name VARCHAR(64))
