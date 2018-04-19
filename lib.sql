@@ -619,6 +619,58 @@ CREATE OR REPLACE VIEW INNODB_COMPRESSED_TABLES_BY_DATABASE AS
         ORDER BY TABLE_SCHEMA
 ;
 
+-- Example:
+-- CALL _.show_working_set_size(5, 3);
+-- +--------------+-------------+----------+
+-- | occurrencies | page_number | bytes    |
+-- +--------------+-------------+----------+
+-- | 3            | 34          | 557056   |
+-- | 4            | 57          | 933888   |
+-- | 5            | 562         | 9207808  |
+-- | <null>       | 687         | 11255808 |
+-- +--------------+-------------+----------+
+-- This means that 34 pages have been found 3 times,
+-- 57 pages have been found 4 times,
+-- and 5 pages have been found 562 times.
+-- The total is 687 pages, with a size of 11255808 bytes.
+DROP PROCEDURE IF EXISTS show_working_set_size;
+CREATE PROCEDURE show_working_set_size(
+        IN in_observations_count INT UNSIGNED,
+        IN in_observation_interval INT UNSIGNED
+    )
+    MODIFIES SQL DATA
+    COMMENT 'Show InnoDB buffer pool working set size based'
+BEGIN
+    DROP TEMPORARY TABLE IF EXISTS innodb_used_pages;
+    CREATE TEMPORARY TABLE innodb_used_pages (
+        block_id INT UNSIGNED NOT NULL,
+        pool_id INT UNSIGNED NOT NULL,
+        occurrencies INT UNSIGNED NOT NULL COMMENT 'How many times the page was found in buffer pool',
+        PRIMARY KEY (pool_id, block_id)
+    )
+        ENGINE MEMORY
+        COMMENT 'Stats on pages found in the buffer pool'
+    ;
+
+    WHILE in_observations_count > 0 DO
+        INSERT IGNORE INTO innodb_used_pages
+            SELECT pool_id, block_id, 1 AS occurrencies
+                FROM information_schema.INNODB_BUFFER_PAGE
+                WHERE PAGE_STATE <> 'NOT_USED'
+            ON DUPLICATE KEY UPDATE occurrencies := occurrencies + 1;
+        DO SLEEP(in_observation_interval);
+        SET in_observations_count = in_observations_count - 1;
+    END WHILE;
+   
+    SELECT
+            occurrencies,
+            COUNT(*) AS page_number,
+            COUNT(*) * @@innodb_page_size AS bytes
+        FROM innodb_used_pages
+        GROUP BY occurrencies WITH ROLLUP;
+    DROP TEMPORARY TABLE innodb_used_pages;
+END;
+
 
 /*
     TRIGGERS
