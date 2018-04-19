@@ -639,7 +639,7 @@ CREATE PROCEDURE show_working_set_size(
         IN in_observation_interval INT UNSIGNED
     )
     MODIFIES SQL DATA
-    COMMENT 'Show InnoDB buffer pool working set size based'
+    COMMENT 'Show InnoDB buffer pool working set size'
 BEGIN
     DROP TEMPORARY TABLE IF EXISTS innodb_used_pages;
     CREATE TEMPORARY TABLE innodb_used_pages (
