@@ -639,7 +639,14 @@ CREATE PROCEDURE show_working_set_size(
         IN in_observation_interval INT UNSIGNED
     )
     MODIFIES SQL DATA
-    COMMENT 'Show InnoDB buffer pool working set size'
+    COMMENT
+'Show the size of buffer pool pages based on how many times they were observed.
+For example: 200 pages found 3 times with a total size of 3276800 bytes;
+500 pages found 4 times with a total size of 8192000; etc.
+To collect these statistics, information_schema.INNODB_BUFFER_PAGE
+is read the specified number of times, at the specified interval (in seconds).
+
+!WARNING: querying this table on a busy server can cause contention!'
 BEGIN
     DROP TEMPORARY TABLE IF EXISTS innodb_used_pages;
     CREATE TEMPORARY TABLE innodb_used_pages (
