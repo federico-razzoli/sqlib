@@ -643,9 +643,10 @@ CREATE PROCEDURE show_working_set_size(
 BEGIN
     DROP TEMPORARY TABLE IF EXISTS innodb_used_pages;
     CREATE TEMPORARY TABLE innodb_used_pages (
-        block_id INT UNSIGNED NOT NULL,
-        pool_id INT UNSIGNED NOT NULL,
+        block_id INT UNSIGNED NOT NULL COMMENT 'Memory block id',
+        pool_id INT UNSIGNED NOT NULL COMMENT 'Bupper pool instance id',
         occurrencies INT UNSIGNED NOT NULL COMMENT 'How many times the page was found in buffer pool',
+        -- block_id is probably not unique across instances
         PRIMARY KEY (pool_id, block_id)
     )
         ENGINE MEMORY
