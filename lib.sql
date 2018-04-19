@@ -377,34 +377,33 @@ END;
 */
 
 -- Example:
--- SELECT _.database_exists('test');
-DROP FUNCTION IF EXISTS database_exists;
-CREATE FUNCTION database_exists(p_name VARCHAR(64))
-    RETURNS BOOL
-    NOT DETERMINISTIC
+-- CALL _.database_exists('test');
+-- SELECT @r;
+DROP PROCEDURE IF EXISTS database_exists;
+CREATE PROCEDURE database_exists(OUT out_ret BOOL, IN in_name VARCHAR(64))
     READS SQL DATA
     COMMENT 'Return if specified database exists'
 BEGIN
-    IF p_name IS NULL THEN
-        RETURN NULL;
+    IF in_name IS NULL THEN
+        SET out_ret := NULL;
+    ELSE
+        SET out_ret := EXISTS (
+            SELECT SCHEMA_NAME
+                FROM information_schema.SCHEMATA
+                WHERE SCHEMA_NAME = in_name
+        );
     END IF;
-    RETURN EXISTS (
-        SELECT SCHEMA_NAME
-            FROM information_schema.SCHEMATA
-            WHERE SCHEMA_NAME = p_name
-    );
 END;
 
 -- Example:
--- SELECT _.schema_exists('test');
-DROP FUNCTION IF EXISTS schema_exists;
-CREATE FUNCTION schema_exists(p_name VARCHAR(64))
-    RETURNS BOOL
-    NOT DETERMINISTIC
+-- CALL _.schema_exists(@r, 'test');
+-- SELECT @r;
+DROP PROCEDURE IF EXISTS schema_exists;
+CREATE PROCEDURE schema_exists(OUT out_ret BOOL, IN in_name VARCHAR(64))
     READS SQL DATA
     COMMENT 'Synonym for database_exists()'
 BEGIN
-    RETURN database_exists(p_name);
+    CALL database_exists(out_ret, in_name);
 END;
 
 -- Example:
