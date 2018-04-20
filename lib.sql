@@ -53,12 +53,14 @@ CREATE TABLE exception_dictionary (
     PRIMARY KEY (`code`)
 )
     ENGINE InnoDB,
-    COMMENT 'Custom exceptions used by SQLib';
+    COMMENT 'Custom exceptions used by SQLib'
+;
 
 INSERT INTO exception_dictionary
     (`sqlstate`, `code`, `message`)
     VALUES
-    ('45000', 32001, 'No namespace available for prepared statement');
+    ('45000', 32001, 'No namespace available for prepared statement')
+;
 
 
 /*
@@ -646,7 +648,7 @@ CREATE OR REPLACE VIEW tables_without_pk AS
         ON
                 t.TABLE_SCHEMA = c.TABLE_SCHEMA
             AND t.TABLE_NAME = c.TABLE_NAME 
-    GROUP BY t.TABLE_SCHEMA, t.TABLE_NAME
+    GROUP BY t.TABLE_SCHEMA, t.TABLE_NAME, t.ENGINE
     HAVING
         SUM(COLUMN_KEY IN ('PRI','UNI')) = 0
 ;
