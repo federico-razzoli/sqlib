@@ -630,7 +630,7 @@ INSERT INTO ignored_databases (schema_name) VALUES
 ;
 
 
-CREATE OR REPLACE VIEW tables_without_index AS
+CREATE OR REPLACE VIEW TABLES_WITHOUT_INDEX AS
     SELECT t.TABLE_SCHEMA, t.TABLE_NAME, t.ENGINE
         FROM information_schema.TABLES t
         LEFT JOIN information_schema.STATISTICS s
@@ -646,7 +646,7 @@ CREATE OR REPLACE VIEW tables_without_index AS
         ORDER BY t.TABLE_ROWS
 ;
 
-CREATE OR REPLACE VIEW tables_without_unique AS
+CREATE OR REPLACE VIEW TABLES_WITHOUT_UNIQUE AS
     SELECT t.TABLE_SCHEMA, t.TABLE_NAME, t.ENGINE
         FROM information_schema.TABLES t
         LEFT JOIN (
@@ -666,7 +666,7 @@ CREATE OR REPLACE VIEW tables_without_unique AS
         ORDER BY t.TABLE_ROWS
 ;
 
-CREATE OR REPLACE VIEW tables_without_pk AS
+CREATE OR REPLACE VIEW TABLES_WITHOUT_PK AS
     SELECT 
         t.TABLE_SCHEMA, t.TABLE_NAME, ENGINE 
     FROM information_schema.TABLES t 
