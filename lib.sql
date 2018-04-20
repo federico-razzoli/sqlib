@@ -603,6 +603,56 @@ CREATE OR REPLACE VIEW EMPTY_TABLES_BY_DATABASE AS
 
 
 /*
+    TABLE DESIGN
+    ============
+
+    Metainformation about tables definition.
+*/
+
+CREATE OR REPLACE VIEW tables_without_index AS
+    SELECT t.TABLE_SCHEMA, t.TABLE_NAME, t.ENGINE
+        FROM information_schema.TABLES t
+        LEFT JOIN information_schema.STATISTICS s
+            ON
+                    t.TABLE_SCHEMA = s.TABLE_SCHEMA
+                AND t.TABLE_NAME = s.TABLE_NAME
+        WHERE
+                t.ENGINE IS NOT NULL
+            AND s.TABLE_NAME IS NULL
+        ORDER BY t.TABLE_ROWS
+;
+
+CREATE OR REPLACE VIEW tables_without_unique AS
+    SELECT t.TABLE_SCHEMA, t.TABLE_NAME, t.ENGINE
+        FROM information_schema.TABLES t
+        LEFT JOIN (
+            SELECT TABLE_SCHEMA, TABLE_NAME
+                FROM information_schema.STATISTICS
+                GROUP BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME
+                HAVING SUM(NON_UNIQUE = 0 AND NOT (NULLABLE = 'YES')) = COUNT(*)
+        ) no_pk
+            ON t.TABLE_SCHEMA = no_pk.TABLE_SCHEMA AND t.TABLE_NAME = no_pk.TABLE_NAME
+        WHERE
+                no_pk.TABLE_NAME IS NULL
+            AND ENGINE IS NOT NULL
+        ORDER BY t.TABLE_ROWS
+;
+
+CREATE OR REPLACE VIEW tables_without_pk AS
+    SELECT 
+        t.TABLE_SCHEMA, t.TABLE_NAME, ENGINE 
+    FROM information_schema.TABLES t 
+    INNER JOIN information_schema.COLUMNS c  
+        ON
+                t.TABLE_SCHEMA = c.TABLE_SCHEMA
+            AND t.TABLE_NAME = c.TABLE_NAME 
+    GROUP BY t.TABLE_SCHEMA, t.TABLE_NAME
+    HAVING
+        SUM(COLUMN_KEY IN ('PRI','UNI')) = 0
+;
+
+
+/*
     INNODB INFORMATION
     ==================
 
