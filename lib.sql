@@ -609,7 +609,26 @@ CREATE OR REPLACE VIEW EMPTY_TABLES_BY_DATABASE AS
     ============
 
     Metainformation about tables definition.
+    Tables in databases listed in ignored_databases are generally
+    not shown by these views.
 */
+
+CREATE TABLE ignored_databases (
+    schema_name VARCHAR(64) NOT NULL,
+    PRIMARY KEY (schema_name)
+)
+    ENGINE InnoDB,
+    COMMENT 'Databases listed here are excluded by views about table design'
+;
+
+INSERT INTO ignored_databases (schema_name) VALUES
+    ('mysql'),
+    ('information_schema'),
+    ('performance_schema'),
+    ('sys'),
+    ('_')
+;
+
 
 CREATE OR REPLACE VIEW tables_without_index AS
     SELECT t.TABLE_SCHEMA, t.TABLE_NAME, t.ENGINE
@@ -618,9 +637,12 @@ CREATE OR REPLACE VIEW tables_without_index AS
             ON
                     t.TABLE_SCHEMA = s.TABLE_SCHEMA
                 AND t.TABLE_NAME = s.TABLE_NAME
+        LEFT JOIN _.ignored_databases id
+            ON t.TABLE_SCHEMA = id.schema_name
         WHERE
                 t.ENGINE IS NOT NULL
             AND s.TABLE_NAME IS NULL
+            AND id.schema_name IS NULL
         ORDER BY t.TABLE_ROWS
 ;
 
@@ -634,9 +656,13 @@ CREATE OR REPLACE VIEW tables_without_unique AS
                 HAVING SUM(NON_UNIQUE = 0 AND NOT (NULLABLE = 'YES')) = COUNT(*)
         ) no_pk
             ON t.TABLE_SCHEMA = no_pk.TABLE_SCHEMA AND t.TABLE_NAME = no_pk.TABLE_NAME
+        LEFT JOIN _.ignored_databases id
+            ON t.TABLE_SCHEMA = id.schema_name
         WHERE
                 no_pk.TABLE_NAME IS NULL
-            AND ENGINE IS NOT NULL
+            AND t.ENGINE IS NOT NULL
+            AND t.TABLE_SCHEMA NOT IN (SELECT schema_name FROM _.ignored_databases)
+            AND id.schema_name IS NULL
         ORDER BY t.TABLE_ROWS
 ;
 
@@ -647,7 +673,10 @@ CREATE OR REPLACE VIEW tables_without_pk AS
     INNER JOIN information_schema.COLUMNS c  
         ON
                 t.TABLE_SCHEMA = c.TABLE_SCHEMA
-            AND t.TABLE_NAME = c.TABLE_NAME 
+            AND t.TABLE_NAME = c.TABLE_NAME
+    LEFT JOIN _.ignored_databases id
+            ON t.TABLE_SCHEMA = id.schema_name
+    WHERE id.schema_name IS NULL
     GROUP BY t.TABLE_SCHEMA, t.TABLE_NAME, t.ENGINE
     HAVING
         SUM(COLUMN_KEY IN ('PRI','UNI')) = 0
