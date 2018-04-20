@@ -684,6 +684,100 @@ CREATE OR REPLACE VIEW TABLES_WITHOUT_PK AS
 
 
 /*
+    PARTITION INFORMATION
+    =====================
+
+    Metainformation about partitioned tables.
+*/
+
+CREATE OR REPLACE VIEW PARTITIONED_TABLES AS
+    SELECT
+            SUM(p.TABLE_ROWS) AS TABLE_ROWS,
+            FORMAT(SUM(p.DATA_LENGTH)  / 1024 / 1024 / 1024, 2) AS DATA_LENGTH_GB,
+            FORMAT(SUM(p.INDEX_LENGTH) / 1024 / 1024 / 1024, 2) AS INDEX_LENGTH_GB,
+            FORMAT(SUM(p.DATA_FREE)    / 1024 / 1024 / 1024, 2) AS DATA_FREE_GB,
+            FORMAT(SUM(p.DATA_LENGTH + p.INDEX_LENGTH + p.DATA_FREE)
+                                     / 1024 / 1024 / 1024, 2) AS TOTAL_SIZE_GB,
+            COUNT(*) AS PARTITION_COUNT
+    FROM information_schema.PARTITIONS p
+    LEFT JOIN _.ignored_databases id
+        ON p.TABLE_SCHEMA = id.schema_name
+    WHERE
+            id.schema_name IS NULL
+        AND p.PARTITION_NAME IS NOT NULL
+;
+
+CREATE OR REPLACE VIEW PARTITIONED_TABLES_BY_DATABASE AS
+    SELECT
+            p.TABLE_SCHEMA AS `DATABASE`,
+            SUM(p.TABLE_ROWS) AS TABLE_ROWS,
+            FORMAT(SUM(p.DATA_LENGTH)  / 1024 / 1024 / 1024, 2) AS DATA_LENGTH_GB,
+            FORMAT(SUM(p.INDEX_LENGTH) / 1024 / 1024 / 1024, 2) AS INDEX_LENGTH_GB,
+            FORMAT(SUM(p.DATA_FREE)    / 1024 / 1024 / 1024, 2) AS DATA_FREE_GB,
+            FORMAT(SUM(p.DATA_LENGTH + p.INDEX_LENGTH + p.DATA_FREE)
+                                     / 1024 / 1024 / 1024, 2) AS TOTAL_SIZE_GB,
+            COUNT(*) AS PARTITION_COUNT
+    FROM information_schema.PARTITIONS p
+    LEFT JOIN _.ignored_databases id
+        ON p.TABLE_SCHEMA = id.schema_name
+    WHERE
+            id.schema_name IS NULL
+        AND p.PARTITION_NAME IS NOT NULL
+    GROUP BY p.TABLE_SCHEMA
+    ORDER BY p.TABLE_SCHEMA
+;
+
+CREATE OR REPLACE VIEW PARTITIONED_TABLES_BY_ENGINE AS
+    SELECT
+            t.ENGINE,
+            SUM(p.TABLE_ROWS) AS TABLE_ROWS,
+            FORMAT(SUM(p.DATA_LENGTH)  / 1024 / 1024 / 1024, 2) AS DATA_LENGTH_GB,
+            FORMAT(SUM(p.INDEX_LENGTH) / 1024 / 1024 / 1024, 2) AS INDEX_LENGTH_GB,
+            FORMAT(SUM(p.DATA_FREE)    / 1024 / 1024 / 1024, 2) AS DATA_FREE_GB,
+            FORMAT(SUM(p.DATA_LENGTH + p.INDEX_LENGTH + p.DATA_FREE)
+                                     / 1024 / 1024 / 1024, 2) AS TOTAL_SIZE_GB,
+            COUNT(*) AS PARTITION_COUNT
+    FROM information_schema.PARTITIONS p
+    LEFT JOIN information_schema.TABLES t
+        ON
+                p.TABLE_SCHEMA = t.TABLE_SCHEMA
+            AND p.TABLE_NAME = t.TABLE_NAME
+    LEFT JOIN _.ignored_databases id
+        ON p.TABLE_SCHEMA = id.schema_name
+    WHERE
+            id.schema_name IS NULL
+        AND p.PARTITION_NAME IS NOT NULL
+    GROUP BY t.ENGINE
+    ORDER BY t.ENGINE
+;
+
+CREATE OR REPLACE VIEW PARTITIONED_TABLES_BY_DATABASE_AND_ENGINE AS
+    SELECT
+            p.TABLE_SCHEMA AS `DATABASE`,
+            t.ENGINE,
+            SUM(p.TABLE_ROWS) AS TABLE_ROWS,
+            FORMAT(SUM(p.DATA_LENGTH)  / 1024 / 1024 / 1024, 2) AS DATA_LENGTH_GB,
+            FORMAT(SUM(p.INDEX_LENGTH) / 1024 / 1024 / 1024, 2) AS INDEX_LENGTH_GB,
+            FORMAT(SUM(p.DATA_FREE)    / 1024 / 1024 / 1024, 2) AS DATA_FREE_GB,
+            FORMAT(SUM(p.DATA_LENGTH + p.INDEX_LENGTH + p.DATA_FREE)
+                                     / 1024 / 1024 / 1024, 2) AS TOTAL_SIZE_GB,
+            COUNT(*) AS PARTITION_COUNT
+    FROM information_schema.PARTITIONS p
+    LEFT JOIN information_schema.TABLES t
+        ON
+                p.TABLE_SCHEMA = t.TABLE_SCHEMA
+            AND p.TABLE_NAME = t.TABLE_NAME
+    LEFT JOIN _.ignored_databases id
+        ON p.TABLE_SCHEMA = id.schema_name
+    WHERE
+            id.schema_name IS NULL
+        AND p.PARTITION_NAME IS NOT NULL
+    GROUP BY p.TABLE_SCHEMA, t.ENGINE
+    ORDER BY p.TABLE_SCHEMA, t.ENGINE
+;
+
+
+/*
     INNODB INFORMATION
     ==================
 
