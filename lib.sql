@@ -59,7 +59,8 @@ CREATE TABLE exception_dictionary (
 INSERT INTO exception_dictionary
     (`sqlstate`, `code`, `message`)
     VALUES
-    ('45000', 32001, 'No namespace available for prepared statement')
+    ('45000', 32001, 'No namespace available for prepared statement'),
+    ('45000', 32002, 'Specified table does not exist')
 ;
 
 
@@ -1047,6 +1048,43 @@ BEGIN
     SELECT TABLE_SCHEMA, TABLE_NAME
         FROM information_schema.COLUMNS
         WHERE COLUMN_NAME = in_column;
+END;
+
+-- Example:
+-- CALL _.show_table_info('_', 'ignored_databases') \G
+-- CALL _.show_table_info('_', 'TABLES_BY_ENGINE') \G
+DROP PROCEDURE IF EXISTS show_table_info;
+CREATE PROCEDURE show_table_info(IN in_schema VARCHAR(64), IN in_table VARCHAR(64))
+    READS SQL DATA
+    COMMENT 'Synonym for SHOW (CREATE TABLE + SHOW KEYS + SELECT TABLE_ROWS) OR SHOW CREATE VIEW'
+BEGIN
+    DECLARE entity_type ENUM('BASE TABLE', 'SYSTEM VIEW', 'VIEW') DEFAULT (
+        SELECT TABLE_TYPE
+            FROM information_schema.TABLES
+            WHERE TABLE_SCHEMA = in_schema AND TABLE_NAME = in_table
+    );
+    IF entity_type IN ('BASE TABLE', 'SYSTEM VIEW') THEN
+        CALL run_sql(
+            CONCAT('SHOW CREATE TABLE ', quote_name2(in_schema, in_table), ';')
+        );
+        CALL run_sql(
+            CONCAT('SHOW INDEX FROM ', quote_name(in_table), ' IN ', quote_name(in_schema), ';')
+        );
+        CALL run_sql(
+            CONCAT('
+                SELECT TABLE_ROWS
+                    FROM information_schema.TABLES
+                    WHERE TABLE_SCHEMA = ', QUOTE(in_schema), ' AND TABLE_NAME = ', QUOTE(in_table), '
+                ;
+            ')
+        );
+    ELSEIF entity_type = 'VIEW' THEN
+        CALL run_sql(
+            CONCAT('SHOW CREATE VIEW ', quote_name2(in_schema, in_table), ';')
+        );
+    ELSE
+        CALL raise_exception(32002, 'Specified table does not exist');
+    END IF;
 END;
 
 
