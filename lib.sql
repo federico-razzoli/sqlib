@@ -1017,5 +1017,38 @@ CREATE OR REPLACE VIEW PROGRAMS_BY_DATABASE_AND_TYPE AS
 ;
 
 
+/*
+    UTILS
+    =====
+
+    Utility procedures to increase productivity.
+*/
+
+
+-- Example:
+-- CALL _.find_table('users');
+DROP PROCEDURE IF EXISTS find_table;
+CREATE PROCEDURE find_table(IN in_table VARCHAR(64))
+    READS SQL DATA
+    COMMENT 'List databases containing specified table or view'
+BEGIN
+    SELECT TABLE_SCHEMA
+        FROM information_schema.TABLES
+        WHERE TABLE_NAME = in_table;
+END;
+
+-- Example:
+-- CALL _.find_column('TABLE_SCHEMA');
+DROP PROCEDURE IF EXISTS find_column;
+CREATE PROCEDURE find_column(IN in_column VARCHAR(64))
+    READS SQL DATA
+    COMMENT 'List tables and views containing specified column'
+BEGIN
+    SELECT TABLE_SCHEMA, TABLE_NAME
+        FROM information_schema.COLUMNS
+        WHERE COLUMN_NAME = in_column;
+END;
+
+
 # release MDL, if any
 COMMIT;
