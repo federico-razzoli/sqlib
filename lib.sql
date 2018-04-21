@@ -371,6 +371,18 @@ BEGIN
     END;
 END;
 
+-- Example:
+-- SELECT _.yesno(1);
+DROP FUNCTION IF EXISTS yesno;
+CREATE FUNCTION yesno(in_value BOOL)
+    RETURNS VARCHAR(3)
+    DETERMINISTIC
+    CONTAINS SQL
+    COMMENT 'Convert a boolean value to ''YES'' or ''NO'''
+BEGIN
+    RETURN IF(in_value, 'YES', 'NO');
+END;
+
 
 /*
     METADATA
@@ -784,6 +796,14 @@ CREATE OR REPLACE VIEW PARTITIONED_TABLES_BY_DATABASE_AND_ENGINE AS
 
     Metainformation about InnoDB tables.
 */
+
+CREATE OR REPLACE VIEW INNODB_TABLES_IN_IBDATA AS
+    SELECT
+            yesno(SPACE = 0) AS TABLES_IN_IBDATA,
+            COUNT(*) AS COUNT
+        FROM information_schema.INNODB_SYS_TABLES 
+        GROUP BY yesno(SPACE = 0)
+;
 
 CREATE OR REPLACE VIEW INNODB_TABLES_BY_ROW_FORMAT AS
     SELECT
