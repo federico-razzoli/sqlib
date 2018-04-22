@@ -1062,6 +1062,25 @@ CREATE OR REPLACE VIEW PROGRAMS_BY_DATABASE_AND_TYPE AS
     ) ORDER BY `DATABASE`, PROGRAM_TYPE
 ;
 
+-- Example:
+-- CALL _.show_triggers_for_table('_', 'ignored_databases');
+DROP PROCEDURE IF EXISTS show_triggers_for_table;
+CREATE PROCEDURE show_triggers_for_table(IN in_schema VARCHAR(64), IN in_table VARCHAR(64))
+    READS SQL DATA
+    COMMENT 'Show triggers associated to specified table'
+BEGIN
+    SELECT
+            EVENT_MANIPULATION,
+            ACTION_TIMING,
+            ACTION_ORDER,
+            TRIGGER_NAME
+        FROM information_schema.TRIGGERS
+        WHERE
+                EVENT_OBJECT_SCHEMA = in_schema
+            AND EVENT_OBJECT_TABLE = in_table
+        ORDER BY EVENT_MANIPULATION, ACTION_TIMING, ACTION_ORDER;
+END;
+
 
 /*
     UTILS
