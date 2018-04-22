@@ -797,6 +797,14 @@ CREATE OR REPLACE VIEW PARTITIONED_TABLES_BY_DATABASE_AND_ENGINE AS
     Metainformation about InnoDB tables.
 */
 
+CREATE OR REPLACE VIEW INNODB_USAGE AS
+    SELECT
+            IF(ENGINE = 'InnoDB', 'InnoDB', 'Other') AS ENGINE,
+            COUNT(*) AS COUNT
+        FROM information_schema.TABLES 
+        GROUP BY IF(ENGINE = 'InnoDB', 'InnoDB', 'Other')
+;
+
 CREATE OR REPLACE VIEW INNODB_TABLES_IN_IBDATA AS
     SELECT
             yesno(SPACE_TYPE = 'System') AS TABLES_IN_IBDATA,
