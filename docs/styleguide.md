@@ -34,3 +34,20 @@ In a stored procedure, parameters should begin with one of the following prefixe
 This guarantess that the name is not reserved.
 
 Don't use any prefix to identify the datatype.
+
+## Code
+
+# Indentation
+
+Indentation is 4 spaces.
+
+Non-trivial queries should be split into multiple lines. All clauses should be indented by one level, with two exceptions:
+
+* The `SELECT` clause (AKA list of columns) should be indented by 2 levels to better distinguish it - or not indented at all if it brief.
+* The `ON` clause should be indented by one additional level compared to `JOIN`.
+
+# Sparse notes
+
+* Queries should use explicit `INNER JOIN` clause, instead of simply `JOIN` or a comma.
+* When declaring variables, always include `DEFAULT` clause - if no value make sense, use `DEFAULT NULL`
+* To assign variables, always use `:=` operator
