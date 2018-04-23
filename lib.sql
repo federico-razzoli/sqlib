@@ -450,6 +450,49 @@ BEGIN
 END;
 
 -- Example:
+-- CALL _.table_exists(@r, '_', 'ignored_databases');
+-- SELECT @r;
+DROP PROCEDURE IF EXISTS table_exists;
+CREATE PROCEDURE table_exists(OUT out_ret BOOL, IN in_schema VARCHAR(64), IN in_table VARCHAR(64))
+    READS SQL DATA
+    COMMENT 'Return if specified database exists'
+BEGIN
+    IF in_schema IS NULL OR in_table IS NULL THEN
+        SET out_ret := NULL;
+    ELSE
+        SET out_ret := EXISTS (
+            SELECT TABLE_NAME
+                FROM information_schema.TABLES
+                WHERE
+                        TABLE_SCHEMA = in_schema
+                    AND TABLE_NAME = in_table
+                    AND TABLE_TYPE <> 'VIEW'
+        );
+    END IF;
+END;
+
+-- Example:
+-- CALL _.view_exists(@r, 'test', 'my_view');
+-- SELECT @r;
+DROP PROCEDURE IF EXISTS view_exists;
+CREATE PROCEDURE view_exists(OUT out_ret BOOL, IN in_schema VARCHAR(64), IN in_view VARCHAR(64))
+    READS SQL DATA
+    COMMENT 'Return if specified database exists'
+BEGIN
+    IF in_schema IS NULL OR in_view IS NULL THEN
+        SET out_ret := NULL;
+    ELSE
+        SET out_ret := EXISTS (
+            SELECT TABLE_NAME
+                FROM information_schema.VIEWS
+                WHERE
+                        TABLE_SCHEMA = in_schema
+                    AND TABLE_NAME = in_view
+        );
+    END IF;
+END;
+
+-- Example:
 -- CALL _.column_exists(@r, 'mysql', 'user', 'host');
 -- SELECT @r;
 DROP PROCEDURE IF EXISTS column_exists;
