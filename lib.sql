@@ -427,7 +427,7 @@ END;
 DROP PROCEDURE IF EXISTS entity_exists;
 CREATE PROCEDURE entity_exists(OUT out_ret BOOL, IN in_schema VARCHAR(64), IN in_table VARCHAR(64))
     READS SQL DATA
-    COMMENT 'Return wether database.table exists'
+    COMMENT 'Return wether database.table exists. It can be a basetable, a temporary table or a view'
 BEGIN
     DECLARE v_sql TEXT DEFAULT NULL;
     -- if the table does not exist, a query on it will return an error
@@ -455,7 +455,7 @@ END;
 DROP PROCEDURE IF EXISTS table_exists;
 CREATE PROCEDURE table_exists(OUT out_ret BOOL, IN in_schema VARCHAR(64), IN in_table VARCHAR(64))
     READS SQL DATA
-    COMMENT 'Return if specified database exists'
+    COMMENT 'Return if specified basetable exists'
 BEGIN
     IF in_schema IS NULL OR in_table IS NULL THEN
         SET out_ret := NULL;
@@ -477,7 +477,7 @@ END;
 DROP PROCEDURE IF EXISTS view_exists;
 CREATE PROCEDURE view_exists(OUT out_ret BOOL, IN in_schema VARCHAR(64), IN in_view VARCHAR(64))
     READS SQL DATA
-    COMMENT 'Return if specified database exists'
+    COMMENT 'Return if specified view exists'
 BEGIN
     IF in_schema IS NULL OR in_view IS NULL THEN
         SET out_ret := NULL;
@@ -489,6 +489,36 @@ BEGIN
                         TABLE_SCHEMA = in_schema
                     AND TABLE_NAME = in_view
         );
+    END IF;
+END;
+
+-- Example:
+-- CALL _.temporary_table_exists(@r, 'test', 'my_view');
+-- SELECT @r;
+DROP PROCEDURE IF EXISTS temporary_table_exists;
+CREATE PROCEDURE temporary_table_exists(OUT out_ret BOOL, IN in_schema VARCHAR(64), IN in_table VARCHAR(64))
+    READS SQL DATA
+    COMMENT 'Return TRUE if specified temporary table exists, FALSE if it does not exist, NULL if there is no way to determine because e non-temporary table/view with the same name exists'
+BEGIN
+    IF in_schema IS NULL OR in_table IS NULL THEN
+        SET out_ret := NULL;
+    ELSE
+        SET out_ret := EXISTS (
+            SELECT TABLE_NAME
+                FROM information_schema.TABLES
+                WHERE
+                        TABLE_SCHEMA = in_schema
+                    AND TABLE_NAME = in_table
+        );
+        IF out_ret IS TRUE THEN
+            -- A non-temporary table/view exists.
+            -- There is no way to determine if temporary table exists.
+            SET out_ret := NULL;
+        ELSE
+            -- We can safely check if the temporary table exists
+            -- using entity_exists()
+            CALL _.entity_exists(out_ret, in_schema, in_table);
+        END IF;
     END IF;
 END;
 
