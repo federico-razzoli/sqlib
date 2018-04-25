@@ -282,6 +282,29 @@ BEGIN
 END;
 
 -- Example:
+-- CALL _.dbvar_set('', 'my_key', 'old value');
+-- SELECT _.dbvar_get('', 'my_key');
+-- SELECT _.dbvar_getset('', 'my_key', 'NEW value');
+-- SELECT _.dbvar_get('', 'my_key');
+DROP FUNCTION IF EXISTS dbvar_getset;
+CREATE FUNCTION dbvar_getset(
+        p_namespace VARCHAR(64),
+        p_name VARCHAR(64),
+        p_new_value TEXT
+    )
+    RETURNS TEXT
+    NOT DETERMINISTIC
+    MODIFIES SQL DATA
+    COMMENT 'Shortcut for dbvar_get() followed by dbvar_set()'
+BEGIN
+    DECLARE v_old_value TEXT DEFAULT (
+        SELECT _.dbvar_get(p_namespace, p_name)
+    );
+    CALL _.dbvar_set(p_namespace, p_name, p_new_value);
+    RETURN v_old_value;
+END;
+
+-- Example:
 -- CALL _.run_sql0('SELECT 1;');
 DROP PROCEDURE IF EXISTS run_sql0;
 CREATE PROCEDURE run_sql0(IN in_sql TEXT)
