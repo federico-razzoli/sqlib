@@ -60,7 +60,13 @@ INSERT INTO exception_dictionary
     (`sqlstate`, `code`, `message`)
     VALUES
     ('45000', 32001, 'No namespace available for prepared statement'),
-    ('45000', 32002, 'Specified table does not exist')
+    ('45000', 32002, 'Specified table does not exist'),
+    ('45000', 32003, 'Invalid argument'),
+    -- dbvars
+    ('45000', 32101, 'Dbvar namespaces cannot be NULL'),
+    ('45000', 32102, 'Dbvar names cannot be NULL or empty string'),
+    ('45000', 32103, 'Dbvars cannot be set to NULL. Unset them instead'),
+    ('45000', 32104, 'Dbvars does not exist'),
 ;
 
 
@@ -72,6 +78,16 @@ INSERT INTO exception_dictionary
     alleviating the need to write verbose or ugly code
     to accomplish reasonably common tasks.
 */
+
+CREATE TABLE dbvars (
+    namespace VARCHAR(64) NOT NULL COMMENT 'Global namespace is empty string',
+    name VARCHAR(64) NOT NULL,
+    value TEXT NOT NULL,
+    PRIMARY KEY (namespace, name)
+)
+    ENGINE InnoDB,
+    COMMENT 'Database variables, meant to survive restarts and be shared between connections'
+;
 
 -- Example:
 -- CALL _.raise_exception(32000, 'Test error');
@@ -195,6 +211,74 @@ BEGIN
     DEALLOCATE PREPARE stmt;
  
     SET `out_is_valid` = TRUE;
+END;
+
+-- Example:
+-- CALL _.dbvar_set('', 'my_key', 'my_value');
+-- CALL _.dbvar_set('', 'my_key', 'some new value');
+DROP PROCEDURE IF EXISTS dbvar_set;
+CREATE PROCEDURE dbvar_set(IN in_namespace VARCHAR(64), IN in_name VARCHAR(64), IN in_value TEXT)
+    MODIFIES SQL DATA
+    COMMENT 'Set a database variable'
+BEGIN
+    IF in_namespace IS NULL THEN
+        CALL _.raise_exception(32101, 'Dbvar namespaces cannot be NULL');
+    END IF;
+    IF in_name IS NULL OR in_name = '' THEN
+        CALL _.raise_exception(32102, 'Dbvar names cannot be NULL or empty string');
+    END IF;
+    IF in_value IS NULL THEN
+        CALL _.raise_exception(32103, 'Dbvars cannot be set to NULL. Unset them instead');
+    END IF;
+
+    REPLACE _.dbvars (namespace, name, value) VALUES
+        (in_namespace, in_name, in_value);
+END;
+
+-- Example:
+-- CALL _.dbvar_set('', 'my_key', 'my_value');
+-- SELECT _.dbvar_get('', 'my_key');
+-- CALL _.dbvar_unset('', 'my_key');
+-- SELECT _.dbvar_get('', 'my_key');
+DROP PROCEDURE IF EXISTS dbvar_unset;
+CREATE PROCEDURE dbvar_unset(IN in_namespace VARCHAR(64), IN in_name VARCHAR(64))
+    MODIFIES SQL DATA
+    COMMENT 'Unset a database variable'
+BEGIN
+    DELETE FROM _.dbvars
+        WHERE
+                namespace = in_namespace
+            AND name = in_name;
+
+    IF ROW_COUNT() < 1 THEN
+        CALL _.raise_exception(
+            32104,
+            CONCAT_WS('', 'Dbvar does not exist: ', in_namespace, '.', in_name)
+        );
+    END IF;
+END;
+
+-- Example:
+-- CALL _.dbvar_set('', 'my_key', 'my_value');
+-- SELECT _.dbvar_get('', 'my_key');
+DROP FUNCTION IF EXISTS dbvar_get;
+CREATE FUNCTION dbvar_get(in_namespace VARCHAR(64), in_name VARCHAR(64))
+    RETURNS TEXT
+    NOT DETERMINISTIC
+    READS SQL DATA
+    COMMENT 'Get the value of a database variable, or NULL'
+BEGIN
+    IF in_namespace IS NULL OR in_name IS NULL THEN
+        RETURN NULL;
+    END IF;
+    RETURN (
+        SELECT value
+            FROM _.dbvars
+            WHERE
+                    namespace = in_namespace
+                AND in_name = name
+    );
+    RETURN v_value;
 END;
 
 -- Example:
