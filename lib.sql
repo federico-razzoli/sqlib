@@ -262,23 +262,22 @@ END;
 -- CALL _.dbvar_set('', 'my_key', 'my_value');
 -- SELECT _.dbvar_get('', 'my_key');
 DROP FUNCTION IF EXISTS dbvar_get;
-CREATE FUNCTION dbvar_get(in_namespace VARCHAR(64), in_name VARCHAR(64))
+CREATE FUNCTION dbvar_get(p_namespace VARCHAR(64), p_name VARCHAR(64))
     RETURNS TEXT
     NOT DETERMINISTIC
     READS SQL DATA
     COMMENT 'Get the value of a database variable, or NULL'
 BEGIN
-    IF in_namespace IS NULL OR in_name IS NULL THEN
+    IF p_namespace IS NULL OR p_name IS NULL THEN
         RETURN NULL;
     END IF;
     RETURN (
         SELECT value
             FROM _.dbvars
             WHERE
-                    namespace = in_namespace
-                AND in_name = name
+                    namespace = p_namespace
+                AND p_name = name
     );
-    RETURN v_value;
 END;
 
 -- Example:
